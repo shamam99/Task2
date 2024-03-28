@@ -11,9 +11,8 @@ const forgetPass = async (req, res, next) => {
         }
         const resetToken = crypto.randomBytes(20).toString('hex');
         const resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-        const resetPasswordExpire = Date.now() + 10 * 60 * 1000; // Token expires in 10 minutes
+        const resetPasswordExpire = Date.now() + 10 * 60 * 1000; 
 
-        // Directly update the user document in the database
         await User.updateOne({ _id: user._id }, {
             $set: {
                 resetPasswordToken: resetPasswordToken,
