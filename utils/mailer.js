@@ -1,23 +1,29 @@
 const nodemailer = require('nodemailer');
-const stubTransport = require('nodemailer-stub-transport');
 
-async function sendEmail({ to, subject, text }) {
-    const transporter = nodemailer.createTransport(stubTransport({
-    }));
+async function sendEmail({ to, subject, text, html }) {
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user:  'shamam.kafri@gmail.com',
+            pass: 'ohsh rbsv zfin mikh '
+        } 
+});
 
-    const mailOptions = {
-        from: '"Test Sender" <sender@example.com>',
-        to: to, 
-        subject: subject, 
-        text: text, 
-    };
+const mailOptions = {
+    from: '"shamam" <shamam.kafri@gmail.com>', 
+    to: to, 
+    subject: subject, 
+    text: text, 
+    html: html 
+};
 
-    try {
-        let info = await transporter.sendMail(mailOptions);
-        console.log("Email successfully sent:", info.response.toString());
-    } catch (error) {
-        console.error("Error sending email:", error);
-    }
+try {
+    let info = await transporter.sendMail(mailOptions);
+    console.log("Email successfully sent:", info.messageId);
+} catch (error) {
+    console.error("Error sending email:", error);
+    throw error; 
+}
 }
 
 module.exports = sendEmail;

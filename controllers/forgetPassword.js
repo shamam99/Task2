@@ -7,18 +7,20 @@ const forgetPass = async (req, res, next) => {
     try {
         const user = await User.findOne({ email });
         if (!user) {
-            const error = new Error('User not found');
-            error.statusCode = 404; 
-            throw error; 
+            return res.status(404).json({ message: 'User not found' });
         }
         const resetToken = crypto.randomBytes(20).toString('hex');
-        user.resetPasswordToken = crypto
-            .createHash('sha256')
-            .update(resetToken)
-            .digest('hex');
-        user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; 
-        await user.save();
-        const resetLink = `http://localhost:3000/auth/resetPassword/${resetToken}`;
+        const resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        const resetPasswordExpire = Date.now() + 10 * 60 * 1000; // Token expires in 10 minutes
+
+        // Directly update the user document in the database
+        await User.updateOne({ _id: user._id }, {
+            $set: {
+                resetPasswordToken: resetPasswordToken,
+                resetPasswordExpire: resetPasswordExpire
+            }
+        });
+        const resetLink = `https://faked.onrender.com/api/auth/resetPassword/${resetToken}`;
         await sendEmail({
             to: user.email,
             subject: "Password Reset Request",

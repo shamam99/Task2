@@ -8,7 +8,7 @@ const { resetPass } = require('../controllers/resetPassword');
 
 router.post('/register', register);
 router.post('/login', login);
-router.post('/forgetPassword', forgetPass);
+router.post('/forgetPassword/', forgetPass);
 router.post('/resetPassword/:token', resetPass);
 
 

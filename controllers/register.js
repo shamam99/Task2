@@ -1,16 +1,16 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const generateToken = require('../utils/generateToken');
 const User = require('../models/user');
 
 const register = async (req, res, next) => {
-    const { username, email, password, tripleName, isAdmin } = req.body; 
+    const { tripleName, username, email, password, isAdmin } = req.body; 
     try {
         let user = await User.findOne({ email });
         if (user) {
-            const error = new Error('User already exists');
-            error.statusCode = 400;
-            throw error;
+            throw new Error('User already exists'); 
         }
+
         user = new User({
             tripleName,
             username,
@@ -21,22 +21,18 @@ const register = async (req, res, next) => {
 
         await user.save();
 
-        const payload = { user: { id: user.id } };
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-
         res.json({
-            token,
+            token: generateToken(user._id),
             user: {
-                id: user.id,
+                id: user._id,
                 tripleName: user.tripleName,
                 username: user.username,
                 email: user.email,
-                isAdmin :user.isAdmin
+                isAdmin: user.isAdmin
             }
         });
     } catch (err) {
         next(err);
     }
 };
-
 module.exports = { register };

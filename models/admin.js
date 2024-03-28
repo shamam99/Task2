@@ -35,6 +35,8 @@ const adminSchema = new mongoose.Schema({
             message: () => `Password must be 8-24 characters long, contain at least one uppercase letter, one lowercase letter, and one special character. Spaces are prohibited.`
         },
     },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
     isAdmin: {
         type: Boolean,
         default: true,
@@ -43,6 +45,9 @@ const adminSchema = new mongoose.Schema({
     timestamps: true
 });
 
+adminSchema.methods.matchPassword = async function(enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+  };
 adminSchema.pre('save', async function(next) {
     if (this.isModified('password')) {
       this.password = await bcrypt.hash(this.password, 12);
